@@ -1,4 +1,4 @@
-# DialogResizer
+# Dialog Resizer Plugin
 
 The plugin helps you to resize dialogs and windows to the specified resolution.
 
