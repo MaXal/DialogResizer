@@ -6,7 +6,10 @@
 
     <description><![CDATA[
       The plugin helps you to resize dialogs and windows to the specified resolution.
-      Just activate the resizer and CTRL+SHIFT+Click in any dialog or window.
+
+      <h3>Usage</h3>
+      Just activate the action (<em>Find Action|Dialog Resizer</em>), select the resolution and <em>CTRL+SHIFT+Click</em>
+       in any dialog or window.
     ]]></description>
 
 
