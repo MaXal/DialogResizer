@@ -1,0 +1,22 @@
+<idea-plugin>
+    <id>org.maxal.dialogResizer</id>
+    <name>Dialog Resizer</name>
+    <version>1.0</version>
+    <vendor email="maxim.kolmakov@gmail.com.com" url="https://github.com/maxal">Maksim Kolmakov</vendor>
+
+    <description><![CDATA[
+      The plugin helps you to resize dialogs and windows to the specified resolution.
+      Just activate the resizer and CTRL+SHIFT+Click in any dialog or window.
+    ]]></description>
+
+
+    <idea-version since-build="173.0"/>
+
+
+    <actions>
+        <action id="DialogResizer" class="org.maxal.dialogResizer.DialogResizerAction" text="Dialog Resizer">
+            <add-to-group group-id="UIToggleActions" anchor="last"/>
+        </action>
+    </actions>
+
+</idea-plugin>

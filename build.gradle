@@ -1,0 +1,21 @@
+plugins {
+    id "org.jetbrains.intellij" version "0.3.9"
+}
+
+repositories {
+    mavenCentral()
+}
+
+group 'org.maxal'
+version '1.0'
+
+apply plugin: 'org.jetbrains.intellij'
+
+intellij {
+    version 'IC-2016.3'
+}
+
+publishPlugin {
+    username "$System.env.JB_USERNAME"
+    password "$System.env.JB_PASSWORD"
+}
