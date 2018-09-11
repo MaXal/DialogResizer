@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DialogResizer.iml" filepath="$PROJECT_DIR$/DialogResizer.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/DialogResizer_main.iml" filepath="$PROJECT_DIR$/.idea/modules/DialogResizer_main.iml" group="DialogResizer" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/DialogResizer_test.iml" filepath="$PROJECT_DIR$/.idea/modules/DialogResizer_test.iml" group="DialogResizer" />
     </modules>
   </component>
 </project>
