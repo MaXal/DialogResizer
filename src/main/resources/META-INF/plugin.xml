@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.maxal.dialogResizer</id>
     <name>Dialog Resizer</name>
-    <version>1.0</version>
+    <version>1.1</version>
     <vendor email="maxim.kolmakov@gmail.com.com" url="https://github.com/maxal">Maksim Kolmakov</vendor>
 
     <description><![CDATA[
@@ -13,7 +13,7 @@
     ]]></description>
 
 
-    <idea-version since-build="173.0"/>
+    <idea-version since-build="162.0"/>
 
 
     <actions>

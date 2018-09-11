@@ -7,12 +7,13 @@ repositories {
 }
 
 group 'org.maxal'
-version '1.0'
+version '1.1'
 
 apply plugin: 'org.jetbrains.intellij'
 
 intellij {
     version 'IC-2016.3'
+    updateSinceUntilBuild false
 }
 
 publishPlugin {
