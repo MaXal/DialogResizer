@@ -9,7 +9,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +24,7 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
     private DialogResizer myDialogResizer;
     private Integer myHeight = null;
     private Integer myWeight = null;
+    private Boolean myUseRealSize = false;
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
@@ -34,48 +34,31 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         if (state) {
-            DialogResizerWindow dialogResizerWindow = new DialogResizerWindow(myHeight, myWeight, false);
+            DialogResizerWindow dialogResizerWindow = new DialogResizerWindow(false);
             boolean isOK = dialogResizerWindow.showAndGet();
             if (isOK) {
-                myHeight = dialogResizerWindow.getHeight();
-                myWeight = dialogResizerWindow.getWeight();
+                myHeight = Integer.valueOf(dialogResizerWindow.myHeightTextField.getText());
+                myWeight = Integer.valueOf(dialogResizerWindow.myWeightTextField.getText());
+                myUseRealSize = dialogResizerWindow.useRealSizeCheckbox.isSelected();
                 if (myDialogResizer == null) {
                     myDialogResizer = new DialogResizer();
                 }
                 Notifications.Bus.notify(new Notification("Resizer", "Dialog Resizer", "Control-Shift-Click to resize the component!",
                         NotificationType.INFORMATION, null));
             }
-        }
-        else {
-            DialogResizer dialogResizer = myDialogResizer;
+        } else {
             myDialogResizer = null;
-            if (dialogResizer != null) {
-                Disposer.dispose(dialogResizer);
-            }
         }
     }
 
-    private static class DialogResizerWindow extends DialogWrapper {
+    private class DialogResizerWindow extends DialogWrapper {
 
         private JBTextField myHeightTextField;
         private JBTextField myWeightTextField;
-        private final Integer myHeight;
-        private final Integer myWeight;
+        private JCheckBox useRealSizeCheckbox;
 
-
-        private Integer getHeight() {
-            return Integer.valueOf(myHeightTextField.getText());
-        }
-
-        private Integer getWeight() {
-            return Integer.valueOf(myWeightTextField.getText());
-        }
-
-
-        protected DialogResizerWindow(Integer height, Integer weight, boolean canBeParent) {
+        DialogResizerWindow(boolean canBeParent) {
             super(canBeParent);
-            myHeight = height;
-            myWeight = weight;
             setTitle("Required Size");
             init();
         }
@@ -90,15 +73,21 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
             myHeightTextField = new JBTextField(1);
             if (myHeight != null) myHeightTextField.setText(myHeight.toString());
             firstLine.add(myHeightTextField, BorderLayout.CENTER);
-            panel.add(firstLine, BorderLayout.SOUTH);
+            panel.add(firstLine, BorderLayout.NORTH);
 
             JPanel secondLine = new JPanel(new BorderLayout());
             secondLine.add(new JBLabel("Width:  "), BorderLayout.WEST);
             myWeightTextField = new JBTextField(1);
             if (myWeight != null) myWeightTextField.setText(myWeight.toString());
-
             secondLine.add(myWeightTextField, BorderLayout.CENTER);
-            panel.add(secondLine);
+            panel.add(secondLine, BorderLayout.CENTER);
+
+            JPanel thirdLine = new JPanel(new BorderLayout());
+            useRealSizeCheckbox = new JCheckBox("Size without OS toolbar", false);
+            useRealSizeCheckbox.setSelected(myUseRealSize);
+            thirdLine.add(useRealSizeCheckbox, BorderLayout.WEST);
+            panel.add(thirdLine, BorderLayout.SOUTH);
+
             return panel;
         }
     }
@@ -131,7 +120,13 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
                 parent = parent.getParent();
                 if (parent == null) return;
             }
-            parent.setSize(DialogResizerAction.this.myWeight, DialogResizerAction.this.myHeight);
+
+            int adjustment = 0;
+            if (myUseRealSize) {
+                //os toolbar height
+                adjustment = parent.getHeight() - ((Container) parent).getComponent(0).getHeight();
+            }
+            parent.setSize(myWeight, myHeight + adjustment);
         }
     }
 }
