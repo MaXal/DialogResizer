@@ -11,13 +11,19 @@ import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.util.ui.EmptyClipboardOwner;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.AWTEventListener;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 public class DialogResizerAction extends ToggleAction implements DumbAware {
 
@@ -43,7 +49,7 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
                 if (myDialogResizer == null) {
                     myDialogResizer = new DialogResizer();
                 }
-                Notifications.Bus.notify(new Notification("Resizer", "Dialog Resizer", "Control-Shift-Click to resize the component!",
+                Notifications.Bus.notify(new Notification("Resizer", "Dialog Resizer", "Control-Shift-Click to resize the component.\n Alt-Shift-Click to captrue screenshot.",
                         NotificationType.INFORMATION, null));
             }
         } else {
@@ -92,6 +98,41 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
         }
     }
 
+    private static void copyImageToClipboard(Component comp) {
+        int w = comp.getWidth();
+        int h = comp.getHeight();
+        BufferedImage bi = UIUtil.createImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = bi.createGraphics();
+        comp.paint(g);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageTransferable(bi), EmptyClipboardOwner.INSTANCE);
+    }
+
+    private static class ImageTransferable implements Transferable {
+        private final BufferedImage myImage;
+
+        ImageTransferable(@NotNull BufferedImage image) {
+            myImage = image;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+            return new DataFlavor[]{DataFlavor.imageFlavor};
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor dataFlavor) {
+            return DataFlavor.imageFlavor.equals(dataFlavor);
+        }
+
+        @Override
+        public Object getTransferData(DataFlavor dataFlavor) throws UnsupportedFlavorException {
+            if (!DataFlavor.imageFlavor.equals(dataFlavor)) {
+                throw new UnsupportedFlavorException(dataFlavor);
+            }
+            return myImage;
+        }
+    }
+
     private class DialogResizer implements AWTEventListener, Disposable {
         DialogResizer() {
             Toolkit.getDefaultToolkit().addAWTEventListener(this, AWTEvent.MOUSE_EVENT_MASK);
@@ -110,23 +151,36 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
         }
 
         private void processMouseEvent(MouseEvent me) {
-            if (!me.isShiftDown() || !me.isControlDown()) return;
             if (me.getClickCount() != 1 || me.isPopupTrigger()) return;
-            me.consume();
             if (me.getID() != MouseEvent.MOUSE_RELEASED) return;
+            if (me.isShiftDown() && me.isControlDown()) {
+                me.consume();
+                Window parent = getTopWindowComponent(me);
+                if (parent == null) return;
+
+                int adjustment = 0;
+                if (myUseRealSize) {
+                    //os toolbar height
+                    adjustment = parent.getHeight() - parent.getComponent(0).getHeight();
+                }
+                parent.setSize(myWeight, myHeight + adjustment);
+            } else if (me.isShiftDown() && me.isAltDown()) {
+                me.consume();
+                Window parent = getTopWindowComponent(me);
+                if (parent != null && parent.getComponent(0) != null) {
+                    copyImageToClipboard(parent.getComponent(0));
+                }
+            }
+        }
+
+        private Window getTopWindowComponent(MouseEvent me) {
             Component component = me.getComponent();
             Component parent = component.getParent();
             while (!(parent instanceof Dialog) && !(parent instanceof Frame)) {
                 parent = parent.getParent();
-                if (parent == null) return;
+                if (parent == null) return null;
             }
-
-            int adjustment = 0;
-            if (myUseRealSize) {
-                //os toolbar height
-                adjustment = parent.getHeight() - ((Container) parent).getComponent(0).getHeight();
-            }
-            parent.setSize(myWeight, myHeight + adjustment);
+            return (Window) parent;
         }
     }
 }
