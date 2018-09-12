@@ -49,7 +49,7 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
                 if (myDialogResizer == null) {
                     myDialogResizer = new DialogResizer();
                 }
-                Notifications.Bus.notify(new Notification("Resizer", "Dialog Resizer", "Control-Shift-Click to resize the component.\n Alt-Shift-Click to captrue screenshot.",
+                Notifications.Bus.notify(new Notification("Resizer", "Dialog Resizer", "Control-Shift-Click to resize the component.\n Alt-Shift-Click to capture screenshot.",
                         NotificationType.INFORMATION, null));
             }
         } else {
