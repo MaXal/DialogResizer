@@ -75,17 +75,17 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
             JPanel panel = new JPanel(new BorderLayout());
 
             JPanel firstLine = new JPanel(new BorderLayout());
-            firstLine.add(new JBLabel("Height: "), BorderLayout.WEST);
-            myHeightTextField = new JBTextField(1);
-            if (myHeight != null) myHeightTextField.setText(myHeight.toString());
-            firstLine.add(myHeightTextField, BorderLayout.CENTER);
+            firstLine.add(new JBLabel("Width:  "), BorderLayout.WEST);
+            myWeightTextField = new JBTextField(1);
+            if (myWeight != null) myWeightTextField.setText(myWeight.toString());
+            firstLine.add(myWeightTextField, BorderLayout.CENTER);
             panel.add(firstLine, BorderLayout.NORTH);
 
             JPanel secondLine = new JPanel(new BorderLayout());
-            secondLine.add(new JBLabel("Width:  "), BorderLayout.WEST);
-            myWeightTextField = new JBTextField(1);
-            if (myWeight != null) myWeightTextField.setText(myWeight.toString());
-            secondLine.add(myWeightTextField, BorderLayout.CENTER);
+            secondLine.add(new JBLabel("Height: "), BorderLayout.WEST);
+            myHeightTextField = new JBTextField(1);
+            if (myHeight != null) myHeightTextField.setText(myHeight.toString());
+            secondLine.add(myHeightTextField, BorderLayout.CENTER);
             panel.add(secondLine, BorderLayout.CENTER);
 
             JPanel thirdLine = new JPanel(new BorderLayout());
