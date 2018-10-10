@@ -1,6 +1,7 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.maxal.dialogResizer;
 
+import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
@@ -27,9 +28,9 @@ import java.awt.image.BufferedImage;
 
 public class DialogResizerAction extends ToggleAction implements DumbAware {
 
+    private static final String WIDTH_KEY = "DialogResizer_Width";
+    private static final String HEIGHT_KEY = "DialogResizer_Height";
     private DialogResizer myDialogResizer;
-    private Integer myHeight = null;
-    private Integer myWeight = null;
     private Boolean myUseRealSize = false;
 
     @Override
@@ -43,8 +44,8 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
             DialogResizerWindow dialogResizerWindow = new DialogResizerWindow(false);
             boolean isOK = dialogResizerWindow.showAndGet();
             if (isOK) {
-                myHeight = Integer.valueOf(dialogResizerWindow.myHeightTextField.getText());
-                myWeight = Integer.valueOf(dialogResizerWindow.myWeightTextField.getText());
+                setMyHeight(Integer.valueOf(dialogResizerWindow.myHeightTextField.getText()));
+                setMyWidth(Integer.valueOf(dialogResizerWindow.myWidthTextField.getText()));
                 myUseRealSize = dialogResizerWindow.useRealSizeCheckbox.isSelected();
                 if (myDialogResizer == null) {
                     myDialogResizer = new DialogResizer();
@@ -57,10 +58,28 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
         }
     }
 
+    private Integer getMyHeight() {
+        int savedInt = PropertiesComponent.getInstance().getInt(HEIGHT_KEY, -1);
+        return savedInt == -1 ? null : savedInt;
+    }
+
+    private void setMyHeight(Integer myHeight) {
+        PropertiesComponent.getInstance().setValue(HEIGHT_KEY, myHeight, -1);
+    }
+
+    private Integer getMyWidth() {
+        int savedInt = PropertiesComponent.getInstance().getInt(WIDTH_KEY, -1);
+        return savedInt == -1 ? null : savedInt;
+    }
+
+    private void setMyWidth(Integer myWidth) {
+        PropertiesComponent.getInstance().setValue(WIDTH_KEY, myWidth, -1);
+    }
+
     private class DialogResizerWindow extends DialogWrapper {
 
         private JBTextField myHeightTextField;
-        private JBTextField myWeightTextField;
+        private JBTextField myWidthTextField;
         private JCheckBox useRealSizeCheckbox;
 
         DialogResizerWindow(boolean canBeParent) {
@@ -76,15 +95,15 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
 
             JPanel firstLine = new JPanel(new BorderLayout());
             firstLine.add(new JBLabel("Width:  "), BorderLayout.WEST);
-            myWeightTextField = new JBTextField(1);
-            if (myWeight != null) myWeightTextField.setText(myWeight.toString());
-            firstLine.add(myWeightTextField, BorderLayout.CENTER);
+            myWidthTextField = new JBTextField(1);
+            if (getMyWidth() != null) myWidthTextField.setText(getMyWidth().toString());
+            firstLine.add(myWidthTextField, BorderLayout.CENTER);
             panel.add(firstLine, BorderLayout.NORTH);
 
             JPanel secondLine = new JPanel(new BorderLayout());
             secondLine.add(new JBLabel("Height: "), BorderLayout.WEST);
             myHeightTextField = new JBTextField(1);
-            if (myHeight != null) myHeightTextField.setText(myHeight.toString());
+            if (getMyHeight() != null) myHeightTextField.setText(getMyHeight().toString());
             secondLine.add(myHeightTextField, BorderLayout.CENTER);
             panel.add(secondLine, BorderLayout.CENTER);
 
@@ -124,6 +143,7 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
             return DataFlavor.imageFlavor.equals(dataFlavor);
         }
 
+        @NotNull
         @Override
         public Object getTransferData(DataFlavor dataFlavor) throws UnsupportedFlavorException {
             if (!DataFlavor.imageFlavor.equals(dataFlavor)) {
@@ -163,7 +183,7 @@ public class DialogResizerAction extends ToggleAction implements DumbAware {
                     //os toolbar height
                     adjustment = parent.getHeight() - parent.getComponent(0).getHeight();
                 }
-                parent.setSize(myWeight, myHeight + adjustment);
+                parent.setSize(getMyWidth(), getMyHeight() + adjustment);
             } else if (me.isShiftDown() && me.isAltDown()) {
                 me.consume();
                 Window parent = getTopWindowComponent(me);
